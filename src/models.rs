@@ -26,9 +26,9 @@ mod tests {
     fn test_create_task() {
         let title = "Test task".to_string();
         let task = Task::new(title.clone());
-        
+
         assert_eq!(task.title, title);
-        assert_eq!(task.completed, false);
+        assert!(!task.completed);
         assert!(task.created_at <= Utc::now());
     }
 }

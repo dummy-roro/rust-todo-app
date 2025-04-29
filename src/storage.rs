@@ -9,10 +9,10 @@ use thiserror::Error;
 pub enum StorageError {
     #[error("Failed to read tasks file: {0}")]
     ReadError(#[from] std::io::Error),
-    
+
     #[error("Failed to parse tasks file: {0}")]
     ParseError(#[from] serde_json::Error),
-    
+
     #[error("Task with ID {0} not found")]
     TaskNotFound(usize),
 }
@@ -24,12 +24,17 @@ pub struct Storage {
 
 impl Storage {
     pub fn new(file_path: &str) -> Result<Self> {
+        // Ensure the data directory exists
+        if let Some(parent) = Path::new(file_path).parent() {
+            fs::create_dir_all(parent)?;
+        }
+
         let tasks = if Path::new(file_path).exists() {
             let file = File::open(file_path)
-                .with_context(|| format!("Failed to open tasks file: {}", file_path))?;
+                .with_context(|| format!("Failed to open tasks file: {file_path}"))?;
             let reader = BufReader::new(file);
             serde_json::from_reader(reader)
-                .with_context(|| format!("Failed to parse tasks from file: {}", file_path))?
+                .with_context(|| format!("Failed to parse tasks from file: {file_path}"))?
         } else {
             Vec::new()
         };
@@ -50,25 +55,23 @@ impl Storage {
     }
 
     pub fn complete_task(&mut self, id: usize) -> Result<bool> {
-        if id >= self.tasks.len() {
-            return Ok(false);
+        if let Some(task) = self.tasks.get_mut(id) {
+            task.completed = true;
+            self.save()?;
+            Ok(true)
+        } else {
+            Ok(false)
         }
-
-        self.tasks[id].completed = true;
-        self.save()?;
-        
-        Ok(true)
     }
 
     pub fn delete_task(&mut self, id: usize) -> Result<bool> {
-        if id >= self.tasks.len() {
-            return Ok(false);
+        if id < self.tasks.len() {
+            self.tasks.remove(id);
+            self.save()?;
+            Ok(true)
+        } else {
+            Ok(false)
         }
-
-        self.tasks.remove(id);
-        self.save()?;
-        
-        Ok(true)
     }
 
     fn save(&self) -> Result<()> {
@@ -81,7 +84,6 @@ impl Storage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
     use tempfile::tempdir;
 
     #[test]
@@ -92,27 +94,24 @@ mod tests {
 
         // Create new storage
         let mut storage = Storage::new(file_path_str).unwrap();
-        
+
         // Add a task
         let task = Task::new("Test task".to_string());
         storage.add_task(task.clone()).unwrap();
-        
+
         // Get tasks
         let tasks = storage.get_tasks().unwrap();
         assert_eq!(tasks.len(), 1);
         assert_eq!(tasks[0].title, "Test task");
-        
+
         // Complete task
         assert!(storage.complete_task(0).unwrap());
         let tasks = storage.get_tasks().unwrap();
-        assert_eq!(tasks[0].completed, true);
-        
+        assert!(tasks[0].completed);
+
         // Delete task
         assert!(storage.delete_task(0).unwrap());
         let tasks = storage.get_tasks().unwrap();
-        assert_eq!(tasks.len(), 0);
-        
-        // Clean up
-        dir.close().unwrap();
+        assert!(tasks.is_empty());
     }
 }

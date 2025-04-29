@@ -41,7 +41,7 @@ enum Commands {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let mut storage = Storage::new("tasks.json")?;
+    let mut storage = Storage::new("data/tasks.json")?;
 
     match cli.command {
         Commands::Add { title } => {
@@ -58,12 +58,14 @@ fn main() -> Result<()> {
 
             println!("Tasks:");
             for (idx, task) in tasks.iter().enumerate() {
-                let status = if task.completed {
-                    "[x]"
-                } else {
-                    "[ ]"
-                };
-                println!("{}. {} {} (Created: {})", idx + 1, status, task.title, task.created_at);
+                let status = if task.completed { "[x]" } else { "[ ]" };
+                println!(
+                    "{}. {} {} (Created: {})",
+                    idx + 1,
+                    status,
+                    task.title,
+                    task.created_at
+                );
             }
         }
         Commands::Complete { id } => {
