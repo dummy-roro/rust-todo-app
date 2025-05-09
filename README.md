@@ -23,8 +23,8 @@ This project demonstrates a simple command-line TODO application written in Rust
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/rust-todo.git
-cd rust-todo
+git clone https://github.com/iam-veeramalla/rust-todo.git
+cd rust-cicd-demo
 ```
 
 2. Build the application:
