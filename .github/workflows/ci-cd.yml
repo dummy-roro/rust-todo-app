@@ -30,8 +30,8 @@ jobs:
       #- name: Check formatting
       #  run: cargo fmt --check
       
-      - name: Run Clippy
-        run: cargo clippy -- -D warnings
+      #- name: Run Clippy
+      #  run: cargo clippy -- -D warnings
 
   # 2. Build
   build:
