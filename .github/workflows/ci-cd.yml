@@ -105,7 +105,7 @@ jobs:
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.REPO_PAT }}
       
       - name: Build Docker image
         uses: docker/build-push-action@v5
@@ -178,7 +178,7 @@ jobs:
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.REPO_PAT }}
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
