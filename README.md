@@ -1,4 +1,4 @@
-# Rust TODO Application with CI/CD Pipeline
+# Rust TODO Application with CI/CD Pipeline 
 
 This project demonstrates a simple command-line TODO application written in Rust with a complete CI/CD pipeline implemented using GitHub Actions.
 
